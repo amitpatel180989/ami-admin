@@ -32,30 +32,23 @@ export default function AmiAdminAgent() {
     setIsProcessing(true);
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1000,
-          system: `You are Ami-admin, an intelligent autonomous agent with full capability to:
-- Create and deploy websites
-- Analyze complex datasets
-- Execute automation tasks
-- Write and debug code
-- Perform research and provide insights
-- Learn from interactions and improve
+const response = await fetch('/api/chat', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    message: cmd
+  })
+});
 
-Respond to commands with:
-1. Clear confirmation of what you're doing
-2. Step-by-step execution plan
-3. Expected results
-4. Learning points for self-improvement
+if (!response.ok) {
+  throw new Error("Server Error");
+}
 
-Be professional, efficient, and always explain your reasoning.`,
-          messages: [{ role: 'user', content: cmd }]
-        })
-      });
+const data = await response.json();
+
+const agentResponse = data.reply;
 
       const data = await response.json();
       const agentResponse = data.content[0]?.text || 'Command processed successfully';
