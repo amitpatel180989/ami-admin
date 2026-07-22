@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Zap, Brain, Gauge, BarChart3, Code, Globe, Play } from 'lucide-react';
+import { Send, Zap, Brain, Gauge, BarChart3, Code, Globe, } from 'lucide-react';
 
 export default function AmiAdminAgent() {
   const [commands, setCommands] = useState([]);
