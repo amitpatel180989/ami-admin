@@ -482,4 +482,8 @@ Be professional, efficient, and always explain your reasoning.`,
       </div>
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 622d6ef (Update App.js)
