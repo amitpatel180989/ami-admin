@@ -50,8 +50,14 @@ const data = await response.json();
 
 const agentResponse = data.reply;
 
-      const data = await response.json();
-      const agentResponse = data.content[0]?.text || 'Command processed successfully';
+if (!response.ok) {
+  throw new Error("Server Error");
+}
+
+const data = await response.json();
+// Determine which format your API returns
+const agentResponse = data.reply || data.content?.[0]?.text || 'Command processed successfully';
+2. Missing Backend API
       
       const assistantMessage = { type: 'assistant', text: agentResponse, timestamp: new Date() };
       setCommands(prev => [...prev, assistantMessage]);
