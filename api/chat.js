@@ -1,73 +1,58 @@
-export default async function handler(req, res) {
+import Anthropic from '@anthropic-ai/sdk';
 
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      error: "Method Not Allowed"
-    });
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+export default async function handler(req, res) {
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-
     const { message } = req.body;
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    if (!message || typeof message !== 'string' || message.trim() === '') {
+      return res.status(400).json({ error: 'Message is required' });
+    }
 
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
-      },
-
-      body: JSON.stringify({
-
-        model: "claude-sonnet-4-20250514",
-
-        max_tokens: 1000,
-
-        system:
-`You are Ami-admin.
-
-You are an autonomous AI assistant.
-
-You can help with coding,
-automation,
-website development,
-data analysis,
-research,
-deployment,
-server administration,
-and business planning.
-
-Always provide complete professional answers.`,
-
-        messages: [
-          {
-            role: "user",
-            content: message
-          }
-        ]
-
-      })
-
+    // Call Anthropic API
+    const response = await client.messages.create({
+      model: 'claude-opus-4-20250805',
+      max_tokens: 1024,
+      messages: [
+        {
+          role: 'user',
+          content: message,
+        },
+      ],
     });
 
-    const data = await response.json();
+    // Extract the text response
+    const assistantMessage = response.content[0].text;
 
+    // Return response in the format your frontend expects
     return res.status(200).json({
-      reply: data.content?.[0]?.text || "No response."
+      success: true,
+      reply: assistantMessage,
+      content: [{ text: assistantMessage }],
     });
+  } catch (error) {
+    console.error('Chat API error:', error);
 
-  }
-  catch (err) {
+    // Handle specific Anthropic API errors
+    if (error.status === 401) {
+      return res.status(401).json({ error: 'Invalid API key' });
+    }
 
-    console.error(err);
+    if (error.status === 429) {
+      return res.status(429).json({ error: 'Rate limit exceeded' });
+    }
 
     return res.status(500).json({
-      error: err.message
+      error: 'Failed to process message',
+      details: error.message,
     });
-
   }
-
 }
