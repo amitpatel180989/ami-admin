@@ -32,32 +32,23 @@ export default function AmiAdminAgent() {
     setIsProcessing(true);
 
     try {
-const response = await fetch('/api/chat', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    message: cmd
-  })
-});
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: cmd
+        })
+      });
 
-if (!response.ok) {
-  throw new Error("Server Error");
-}
+      if (!response.ok) {
+        throw new Error("Server Error");
+      }
 
-const data = await response.json();
-
-const agentResponse = data.reply;
-
-if (!response.ok) {
-  throw new Error("Server Error");
-}
-
-const data = await response.json();
-// Determine which format your API returns
-const agentResponse = data.reply || data.content?.[0]?.text || 'Command processed successfully';
-2. Missing Backend API
+      const data = await response.json();
+      // Handle multiple possible response formats from your API
+      const agentResponse = data.reply || data.content?.[0]?.text || 'Command processed successfully';
       
       const assistantMessage = { type: 'assistant', text: agentResponse, timestamp: new Date() };
       setCommands(prev => [...prev, assistantMessage]);
